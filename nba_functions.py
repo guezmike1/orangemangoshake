@@ -269,9 +269,9 @@ def run_game(loops,away_team_id,home_team_id,away_team_name,home_team_name):
     [poss,ba_ratio,bsba_ratio,defreb_ratio,offreb_ratio,to_ratio,aposs,aba_ratio,absba_ratio,adefreb_ratio,aoffreb_ratio,ato_ratio]= get_def_data(away_team_id,home_team_id)
 
 
-    print_boxscore = False
-    print_summary = False
-    print_finalscore = False
+    print_boxscore = True
+    print_summary = True
+    print_finalscore = True
     
 
     lines = []
