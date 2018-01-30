@@ -186,14 +186,25 @@ def get_stat_dict(team_id):
         #print use_player
         if use_player:  
             [fgatt,fgmade,ftatt,ftmade,threeatt,threemade,noGames] = get_player_stat_list(team_id, player_id, player_fullname)
-            fgatt_dict[player_id] = round(100*float(sum(fgatt))/len(fgatt))
-            #print player_fullname + "Games Average : "+str(round(100*float(sum(fgatt))/len(fgatt)))
-            fgmade_dict[player_id] = round(100*float(sum(fgmade))/len(fgmade))
-            threeatt_dict[player_id] = round(100*float(sum(threeatt))/len(threeatt))
-            threemade_dict[player_id] = round(100*float(sum(threemade))/len(threemade))
-            ftatt_dict[player_id] = round(100*float(sum(ftatt))/len(ftatt))
-            ftmade_dict[player_id] = round(100*float(sum(ftmade))/len(ftmade))
-            nogames_dict[player_id] = noGames
+            #print player_fullname +" "+ str(fgatt)
+            if len(fgatt) == 0:
+                fgatt_dict[player_id] = 0
+                #print player_fullname + "Games Average : "+str(round(100*float(sum(fgatt))/len(fgatt)))
+                fgmade_dict[player_id] = 0
+                threeatt_dict[player_id] = 0
+                threemade_dict[player_id] = 0
+                ftatt_dict[player_id] = 0
+                ftmade_dict[player_id] = 0
+                nogames_dict[player_id] = 0
+            else:
+                fgatt_dict[player_id] = round(100*float(sum(fgatt))/len(fgatt))
+                #print player_fullname + "Games Average : "+str(round(100*float(sum(fgatt))/len(fgatt)))
+                fgmade_dict[player_id] = round(100*float(sum(fgmade))/len(fgmade))
+                threeatt_dict[player_id] = round(100*float(sum(threeatt))/len(threeatt))
+                threemade_dict[player_id] = round(100*float(sum(threemade))/len(threemade))
+                ftatt_dict[player_id] = round(100*float(sum(ftatt))/len(ftatt))
+                ftmade_dict[player_id] = round(100*float(sum(ftmade))/len(ftmade))
+                nogames_dict[player_id] = noGames
 
     ##Change this to be percentage of shots per game. account for a player not playing a game
     return [fgatt_dict, fgmade_dict,threeatt_dict,threemade_dict,ftatt_dict,ftmade_dict, nogames_dict]
@@ -314,7 +325,7 @@ def run_game(loops,away_team_id,home_team_id,away_team_name,home_team_name):
 
 
     print_boxscore = False
-    print_summary = True
+    print_summary = False
     print_finalscore = False
     
 
