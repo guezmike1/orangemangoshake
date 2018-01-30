@@ -33,7 +33,7 @@ firebase_db = firebase.FirebaseApplication('https://bball2018-9c679.firebaseio.c
 #Trained until 680
 for i in range(0,1):
 #for i in range(0,1):
-    [away_team_id, home_team_id,away_team_name, home_team_name] = get_team_ids(718+i)
+    [away_team_id, home_team_id,away_team_name, home_team_name] = get_team_ids(748+i)
 
 #print away_team_id
 #print home_team_id

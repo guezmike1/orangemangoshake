@@ -13,7 +13,7 @@ conn = http.client.HTTPSConnection("api.sportradar.us")
 
 
 #stat is a string of the stat you want
-def get_player_stat_list(team_id, player_id):
+def get_player_stat_list(team_id, player_id, player_fullname):
 
     fgatt= []
     fgmade=[]
@@ -30,8 +30,8 @@ def get_player_stat_list(team_id, player_id):
     game_list = json.loads(data_str)
 
     if game_list is None:
-        print game_list["fullname"] + " not on roster"
-        return [0,0,0,0,0,0]
+        print player_fullname + " not on roster"
+        return [[0],[0],[0],[0],[0],[0]]
 
     else:
         name_key = game_list.keys()[0]
@@ -184,7 +184,7 @@ def get_stat_dict(team_id):
             
         #print use_player
         if use_player:  
-            [fgatt,fgmade,ftatt,ftmade,threeatt,threemade] = get_player_stat_list(team_id, player_id)
+            [fgatt,fgmade,ftatt,ftmade,threeatt,threemade] = get_player_stat_list(team_id, player_id, player_fullname)
             fgatt_dict[player_id] = sum(fgatt)
             fgmade_dict[player_id] = sum(fgmade)
             threeatt_dict[player_id] = sum(threeatt)
