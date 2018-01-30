@@ -31,7 +31,7 @@ def get_player_stat_list(team_id, player_id, player_fullname):
 
     if game_list is None:
         print player_fullname + " not on roster"
-        return [[0],[0],[0],[0],[0],[0]]
+        return [[0],[0],[0],[0],[0],[0],0]
 
     else:
         name_key = game_list.keys()[0]
@@ -41,16 +41,16 @@ def get_player_stat_list(team_id, player_id, player_fullname):
                 current_game = game_list[game]
                 game_stats = current_game[current_game.keys()[0]]
                 
-                
-                fgatt.append(game_stats["field_goals_att"])
-                fgmade.append(game_stats["field_goals_made"])
-                ftatt.append(game_stats["free_throws_att"])
-                ftmade.append(game_stats["free_throws_made"])
-                threeatt.append(game_stats["three_points_att"])
-                threemade.append(game_stats["three_points_made"])
-
+                if game_stats["minutes"] != "00:00":
+                    fgatt.append(game_stats["field_goals_att"])
+                    fgmade.append(game_stats["field_goals_made"])
+                    ftatt.append(game_stats["free_throws_att"])
+                    ftmade.append(game_stats["free_throws_made"])
+                    threeatt.append(game_stats["three_points_att"])
+                    threemade.append(game_stats["three_points_made"])
+        noGames = len(fgatt)
         #print fgatt
-        return [fgatt,fgmade,ftatt,ftmade,threeatt,threemade]
+        return [fgatt,fgmade,ftatt,ftmade,threeatt,threemade,noGames]
 
 
 def get_def_data(away_team_id, home_team_id):
@@ -155,6 +155,7 @@ def get_stat_dict(team_id):
     threemade_dict = {}
     ftatt_dict = {}
     ftmade_dict = {}
+    nogames_dict = {}
 
     conn.request("GET", "/nba/trial/v4/en/teams/"+team_id+"/profile.json?api_key=9ced6hbudhabvug4jdhqsew3")
     res = conn.getresponse()
@@ -184,16 +185,18 @@ def get_stat_dict(team_id):
             
         #print use_player
         if use_player:  
-            [fgatt,fgmade,ftatt,ftmade,threeatt,threemade] = get_player_stat_list(team_id, player_id, player_fullname)
-            fgatt_dict[player_id] = sum(fgatt)
-            fgmade_dict[player_id] = sum(fgmade)
-            threeatt_dict[player_id] = sum(threeatt)
-            threemade_dict[player_id] = sum(threemade)
-            ftatt_dict[player_id] = sum(ftatt)
-            ftmade_dict[player_id] = sum(ftmade)
+            [fgatt,fgmade,ftatt,ftmade,threeatt,threemade,noGames] = get_player_stat_list(team_id, player_id, player_fullname)
+            fgatt_dict[player_id] = round(100*float(sum(fgatt))/len(fgatt))
+            #print player_fullname + "Games Average : "+str(round(100*float(sum(fgatt))/len(fgatt)))
+            fgmade_dict[player_id] = round(100*float(sum(fgmade))/len(fgmade))
+            threeatt_dict[player_id] = round(100*float(sum(threeatt))/len(threeatt))
+            threemade_dict[player_id] = round(100*float(sum(threemade))/len(threemade))
+            ftatt_dict[player_id] = round(100*float(sum(ftatt))/len(ftatt))
+            ftmade_dict[player_id] = round(100*float(sum(ftmade))/len(ftmade))
+            nogames_dict[player_id] = noGames
 
     ##Change this to be percentage of shots per game. account for a player not playing a game
-    return [len(fgatt),fgatt_dict, fgmade_dict,threeatt_dict,threemade_dict,ftatt_dict,ftmade_dict]
+    return [fgatt_dict, fgmade_dict,threeatt_dict,threemade_dict,ftatt_dict,ftmade_dict, nogames_dict]
         
 
 
@@ -284,18 +287,35 @@ def choose_block(ba_ratio,bsba_ratio):
     
     return False
 
+#returns 100*totalshotsoverallgames
+def find_pg(cur_dict,game_dict, ft):
+    #sum_shots = 0
+    sum_shots = round(float(sum(cur_dict.values()))/100)
+    
+##    for player in cur_dict.keys():
+##        p_shotspg = cur_dict[player]
+##        p_noGames = game_dict[player]
+##        season_shots = p_shotspg*p_noGames
+##        sum_shots = sum_shots+season_shots
+    if ft:
+        sum_shots = round(sum_shots/2)
+    #print sum_shots
+    return sum_shots
+
+    
 
 def run_game(loops,away_team_id,home_team_id,away_team_name,home_team_name):
-    [aNoGames,afgatt_dict, afgmade_dict,athreeatt_dict,athreemade_dict,aftatt_dict,aftmade_dict]= get_stat_dict(away_team_id)
-    [NoGames,fgatt_dict, fgmade_dict,threeatt_dict,threemade_dict,ftatt_dict,ftmade_dict]= get_stat_dict(home_team_id)
+    
+    [afgatt_dict, afgmade_dict,athreeatt_dict,athreemade_dict,aftatt_dict,aftmade_dict,anogames_dict]= get_stat_dict(away_team_id)
+    [fgatt_dict, fgmade_dict,threeatt_dict,threemade_dict,ftatt_dict,ftmade_dict,nogames_dict]= get_stat_dict(home_team_id)
 
     #returned team stats
     [poss,ba_ratio,bsba_ratio,defreb_ratio,offreb_ratio,to_ratio,aposs,aba_ratio,absba_ratio,adefreb_ratio,aoffreb_ratio,ato_ratio]= get_def_data(away_team_id,home_team_id)
 
 
-    print_boxscore = True
+    print_boxscore = False
     print_summary = True
-    print_finalscore = True
+    print_finalscore = False
     
 
     lines = []
@@ -307,14 +327,21 @@ def run_game(loops,away_team_id,home_team_id,away_team_name,home_team_name):
     game_poss = round((poss+aposs)/2)
 
     #print "Total possessions: "+str(game_poss)
-    #Get number of each shot per game 
-    shots_pg = sum(fgatt_dict.values())/NoGames
-    three_pg = sum(threeatt_dict.values())/NoGames
-    ft_pg = sum(ftatt_dict.values())/(2*NoGames)
+    #Get number of each shot per game
+    shots_pg = find_pg(fgatt_dict, nogames_dict,False)
+    #print home_team_name + " Shots_pg: " +str(shots_pg)
+    three_pg = find_pg(threeatt_dict, nogames_dict,False)
+    #print home_team_name + " Three_pg: " +str(three_pg)
+    ft_pg = find_pg(ftatt_dict, nogames_dict,True)
+    #print home_team_name + " ft_pg: " +str(ft_pg)
 
-    ashots_pg = sum(afgatt_dict.values())/aNoGames
-    athree_pg = sum(athreeatt_dict.values())/aNoGames
-    aft_pg = sum(aftatt_dict.values())/(2*aNoGames)
+    ashots_pg = find_pg(afgatt_dict, anogames_dict,False)
+    #print away_team_name + " afg_pg: " +str(ashots_pg)
+    athree_pg = find_pg(athreeatt_dict, anogames_dict,False)
+    #print away_team_name + " athree_pg: " +str(athree_pg)
+    aft_pg = find_pg(aftatt_dict, anogames_dict,True)
+    #print away_team_name + " aft_pg: " +str(aft_pg)
+
 
     for x in range(0,loops):
         final_score = [0,0]
