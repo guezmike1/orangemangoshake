@@ -40,7 +40,8 @@ result = firebase_db.get('/Schedule/-L3U_D-g6XHGgDclRC69/games',None)
 data_str = json.dumps(result)
 game_list = json.loads(data_str)
 
-for game in game_list[600:680]:
+#731
+for game in game_list[734:736]:
 
     game_id = game["id"]
     get_string = "/nba/trial/v4/en/games/"+game_id+"/summary.json?api_key=9ced6hbudhabvug4jdhqsew3"

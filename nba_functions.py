@@ -9,6 +9,7 @@ from random import randint
 
 
 firebase_db = firebase.FirebaseApplication('https://bball2018-9c679.firebaseio.com/', authentication=None)
+conn = http.client.HTTPSConnection("api.sportradar.us")
 
 
 #stat is a string of the stat you want
@@ -21,33 +22,35 @@ def get_player_stat_list(team_id, player_id):
     threeatt=[]
     threemade=[]
     
+    
     get_string = "/Teams/"+team_id+"/"+player_id
     
     result = firebase_db.get(get_string,None)
     data_str = json.dumps(result)
     game_list = json.loads(data_str)
-    name_key = game_list.keys()[0]
-    
-    for game in game_list:
-        if game != "fullname":
-            current_game = game_list[game]
-            game_stats = current_game[current_game.keys()[0]]
-            
-            
-            fgatt.append(game_stats["field_goals_att"])
 
-            fgmade.append(game_stats["field_goals_made"])
+    if game_list is None:
+        print game_list["fullname"] + " not on roster"
+        return [0,0,0,0,0,0]
 
-            ftatt.append(game_stats["free_throws_att"])
-
-            ftmade.append(game_stats["free_throws_made"])
-
-            threeatt.append(game_stats["three_points_att"])
-
-            threemade.append(game_stats["three_points_made"])
-
+    else:
+        name_key = game_list.keys()[0]
         
-    return [fgatt,fgmade,ftatt,ftmade,threeatt,threemade]
+        for game in game_list:
+            if game != "fullname":
+                current_game = game_list[game]
+                game_stats = current_game[current_game.keys()[0]]
+                
+                
+                fgatt.append(game_stats["field_goals_att"])
+                fgmade.append(game_stats["field_goals_made"])
+                ftatt.append(game_stats["free_throws_att"])
+                ftmade.append(game_stats["free_throws_made"])
+                threeatt.append(game_stats["three_points_att"])
+                threemade.append(game_stats["three_points_made"])
+
+        #print fgatt
+        return [fgatt,fgmade,ftatt,ftmade,threeatt,threemade]
 
 
 def get_def_data(away_team_id, home_team_id):
@@ -152,21 +155,42 @@ def get_stat_dict(team_id):
     threemade_dict = {}
     ftatt_dict = {}
     ftmade_dict = {}
+
+    conn.request("GET", "/nba/trial/v4/en/teams/"+team_id+"/profile.json?api_key=9ced6hbudhabvug4jdhqsew3")
+    res = conn.getresponse()
+    data_roster = json.load(res)
+
+    player_list = data_roster["players"]
     
-    stat_string = "Teams/"+team_id
-    result = firebase_db.get(stat_string,None)
-    data_str = json.dumps(result)
-    player_list = json.loads(data_str)
-
+    #stat_string = "Teams/"+team_id
+    #result = firebase_db.get(stat_string,None)
+    #data_str = json.dumps(result)
+    #player_list = json.loads(data_str)
     for player in player_list:
+        use_player = True
+        player_id = player["id"]
+        player_fullname = player["full_name"]
+        #print player_fullname + ": "+player_id
 
-        [fgatt,fgmade,ftatt,ftmade,threeatt,threemade] = get_player_stat_list(team_id, player)
-        fgatt_dict[player] = sum(fgatt)
-        fgmade_dict[player] = sum(fgmade)
-        threeatt_dict[player] = sum(threeatt)
-        threemade_dict[player] = sum(threemade)
-        ftatt_dict[player] = sum(ftatt)
-        ftmade_dict[player] = sum(ftmade)
+        if player["status"] == "ACT":
+            if "injuries" in player.keys():
+                player_inj = player["injuries"]
+                player_status = player_inj[0]["status"]
+                if "Out" in player_status:
+                    use_player = False
+
+        else:
+            use_player = False
+            
+        #print use_player
+        if use_player:  
+            [fgatt,fgmade,ftatt,ftmade,threeatt,threemade] = get_player_stat_list(team_id, player_id)
+            fgatt_dict[player_id] = sum(fgatt)
+            fgmade_dict[player_id] = sum(fgmade)
+            threeatt_dict[player_id] = sum(threeatt)
+            threemade_dict[player_id] = sum(threemade)
+            ftatt_dict[player_id] = sum(ftatt)
+            ftmade_dict[player_id] = sum(ftmade)
 
     ##Change this to be percentage of shots per game. account for a player not playing a game
     return [len(fgatt),fgatt_dict, fgmade_dict,threeatt_dict,threemade_dict,ftatt_dict,ftmade_dict]

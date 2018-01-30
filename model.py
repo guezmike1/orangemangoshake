@@ -41,7 +41,7 @@ for i in range(0,1):
     print "------------- "+ away_team_name + " @ " + home_team_name + "-----"
 
 
-    final_score = run_game(5,away_team_id, home_team_id,away_team_name, home_team_name)
+    final_score = run_game(1,away_team_id, home_team_id,away_team_name, home_team_name)
 
 
 
