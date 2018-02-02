@@ -12,8 +12,8 @@ firebase_db = firebase.FirebaseApplication('https://bball2018-9c679.firebaseio.c
 away_team_data = {}
 home_team_data = {}
 
-#736
-for gameNo in range(680,736):
+#765
+for gameNo in range(736,765):
     get_string = '/Games/Game'+str(gameNo)
     print gameNo
 

@@ -10,8 +10,8 @@ from firebase import firebase,FirebaseAuthentication
 firebase_db = firebase.FirebaseApplication('https://bball2018-9c679.firebaseio.com/', authentication=None)
 #result = firebase_db.delete("/Teams",None)
 
-#Ran up to 680
-for gameNo in range(680,736):
+#Ran up to 764
+for gameNo in range(738,765):
     get_string = '/Games/Game'+str(gameNo)
     print gameNo
 
