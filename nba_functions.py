@@ -5,11 +5,11 @@ import json
 from pprint import pprint
 from firebase import firebase,FirebaseAuthentication
 from random import randint
+import credentials
 
 
 
-firebase_db = firebase.FirebaseApplication('https://bball2018-9c679.firebaseio.com/', authentication=None)
-conn = http.client.HTTPSConnection("api.sportradar.us")
+global firebase_db
 
 
 #stat is a string of the stat you want
