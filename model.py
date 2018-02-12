@@ -32,11 +32,12 @@ from credentials import *
 #750 Warriors Jazz 1/30
 #695- 695+57 games was ran and on sublime
 
-start = 500
-howmany = 1
+start = 100
+howmany = 635
 
-
+trainedNo = get_trainedNo()
 firebase_db = get_firebasedb()
+run = True
 
 #Trained until 736
 for i in range(0,howmany):
@@ -46,32 +47,36 @@ for i in range(0,howmany):
 
 #print away_team_id
 #print home_team_id
-    print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    print "~~~~~~~~~~~~~~~~~"+str(gameNo)+"~~~~~~~~~~~~~~~~"
     print "------------- "+ away_team_name + " @ " + home_team_name + "-----"
 
+    if run:
+        [h_score,a_score] = run_game(1,away_team_id, home_team_id,away_team_name, home_team_name,gameNo)
 
-    [h_score,a_score] = run_game(1,away_team_id, home_team_id,away_team_name, home_team_name,gameNo)
+        post = True
 
-    post = True
+        post_data = {}
+        post_data["homeid"] = home_team_id
+        post_data["awayid"] = away_team_id
+        post_data["homename"] = home_team_name
+        post_data["awayname"] = away_team_name
+        post_data["homescore"] = h_score
+        post_data["awayscore"] = a_score
 
-    post_data = {}
-    post_data["homeid"] = home_team_id
-    post_data["awayid"] = away_team_id
-    post_data["homename"] = home_team_name
-    post_data["awayname"] = away_team_name
-    post_data["homescore"] = h_score
-    post_data["awayscore"] = a_score
+        if gameNo <= trainedNo:
+            [arealscore, hrealscore] = get_realscore(gameNo)
+            post_data["awayrealscore"] = arealscore
+            post_data["homerealscore"] = hrealscore
+        
 
 
-    if post:
-        post_string = "/Output/"+str(gameNo)
-        print post_string
-        print post_data
-        #result = firebase_db.post(post_string,post_data)
 
-    
-#post_string = '/Teams/'+home_team_id+'/'+player["id"]+'/Game'+str(gameNo)
-#result = firebase_db.post(post_string,player["statistics"])
+        if post:
+            post_string = "/Outputv6/"+str(gameNo)
+            print post_string
+            print post_data
+            result = firebase_db.post(post_string,post_data)
+
 
 
 

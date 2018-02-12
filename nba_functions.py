@@ -585,6 +585,17 @@ def print_boxscore_function(box_score_away, box_score_home,away_team_name,home_t
     return True
 
 
+def get_realscore(gameNo):
+    get_string = "/Games/Game"+str(gameNo)
+    result = firebase_db.get(get_string,None)
+    data_str = json.dumps(result)
+    current_game = json.loads(data_str)
+    game_stats = current_game[current_game.keys()[0]]
+    away_points = game_stats["away"]["points"]
+    home_points = game_stats["home"]["points"]
+    return [away_points, home_points]
+
+    
 
 
 def update_boxscore(box_score,points_added, play_type, shooter):
