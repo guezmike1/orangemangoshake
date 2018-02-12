@@ -219,40 +219,55 @@ def get_stat_dict(team_id,home,gameNo):
     ftmade_dict = {}
     nogames_dict = {}
 
-    #if gameNo > trainedNo:
-    conn.request("GET", "/nba/trial/v4/en/teams/"+team_id+"/profile.json?api_key=9ced6hbudhabvug4jdhqsew3")
-    res = conn.getresponse()
-    data_roster = json.load(res)
-    player_list = data_roster["players"]
-
-    #else:
-        #get_string = "/Games/Game"+str(GameNo)
+    #if new game use current roster for player list
+    if gameNo > trainedNo:
+        conn.request("GET", "/nba/trial/v4/en/teams/"+team_id+"/profile.json?api_key=9ced6hbudhabvug4jdhqsew3")
+        res = conn.getresponse()
+        data_roster = json.load(res)
+        player_list = data_roster["players"]
         
+
+    #if old game use the roster from the processed game for player_list
+    else:
+        get_string = "/Games/Game"+str(gameNo)
+        result = firebase_db.get(get_string,None)
+        data_str = json.dumps(result)
+        current_game = json.loads(data_str)
+
+        data_game = current_game[current_game.keys()[0]]
+        if home:
+            player_list = data_game["home"]["players"]
+        else:
+            player_list = data_game["away"]["players"]
+
     
     #stat_string = "Teams/"+team_id
     #result = firebase_db.get(stat_string,None)
     #data_str = json.dumps(result)
     #player_list = json.loads(data_str)
     for player in player_list:
-        #TODO:
-        #if gameNo > trainedNo:
-        use_player = True
-        player_id = player["id"]
-        player_fullname = player["full_name"]
-        #print player_fullname + ": "+player_id
+ 
+        if gameNo > trainedNo:
+            use_player = True
+            player_id = player["id"]
+            player_fullname = player["full_name"]
+            #print player_fullname + ": "+player_id
 
-        if player["status"] == "ACT":
-            if "injuries" in player.keys():
-                player_inj = player["injuries"]
-                player_status = player_inj[0]["status"]
-                if "Out" in player_status:
-                    use_player = False
+            if player["status"] == "ACT":
+                if "injuries" in player.keys():
+                    player_inj = player["injuries"]
+                    player_status = player_inj[0]["status"]
+                    if "Out" in player_status:
+                        use_player = False
 
+            else:
+                use_player = False
+  
         else:
-            use_player = False
-        #TODO:
-        #else:
-        #    use_player = True
+            use_player = True
+            player_id = player["id"]
+            player_fullname = player["full_name"]
+                            
             
         #print use_player
         if use_player:  
@@ -387,6 +402,7 @@ def find_pg(cur_dict,game_dict, ft):
     
 
 def run_game(loops,away_team_id,home_team_id,away_team_name,home_team_name,gameNo):
+
     
     [afgatt_dict, afgmade_dict,athreeatt_dict,athreemade_dict,aftatt_dict,aftmade_dict,anogames_dict]= get_stat_dict(away_team_id,False,gameNo)
     [fgatt_dict, fgmade_dict,threeatt_dict,threemade_dict,ftatt_dict,ftmade_dict,nogames_dict]= get_stat_dict(home_team_id,True,gameNo)
