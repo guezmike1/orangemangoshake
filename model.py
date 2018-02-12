@@ -32,7 +32,7 @@ from credentials import *
 #750 Warriors Jazz 1/30
 #695- 695+57 games was ran and on sublime
 
-start = 502
+start = 500
 howmany = 1
 
 

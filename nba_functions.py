@@ -20,7 +20,6 @@ def usethisgame(schedule_list, game, team_id,home,gameNo):
     if gameNo <= int(gameNumber):
         return False
     else:
-        #TODO: fix this indexing
         if schedule_list[int(gameNumber)]["home"]["id"] == team_id:
             if home:
                 usegame = True
@@ -221,8 +220,7 @@ def get_stat_dict(team_id,home,gameNo):
     nogames_dict = {}
 
     #if gameNo > trainedNo:
-        #TODO: bug maybe in this line
-    conn.request("GET", "/nba/trial/v4/en/teams/"+team_id+"/profile.json?api_key="+api_key)
+    conn.request("GET", "/nba/trial/v4/en/teams/"+team_id+"/profile.json?api_key=9ced6hbudhabvug4jdhqsew3")
     res = conn.getresponse()
     data_roster = json.load(res)
     player_list = data_roster["players"]
