@@ -6,12 +6,13 @@ from pprint import pprint
 from firebase import firebase,FirebaseAuthentication
 from random import randint
 from credentials import *
+#from model import *
 
 firebase_db = get_firebasedb()
 conn= get_conn()
 
 
-
+#Only picks games before this one and home if home, away if away
 def usethisgame(schedule_list, game, team_id,home,gameNo):
     usegame = True
     gameNumber = game[4:]
@@ -82,7 +83,28 @@ def get_player_stat_list(team_id, player_id, player_fullname,home,gameNo):
         return [fgatt,fgmade,ftatt,ftmade,threeatt,threemade,noGames]
 
 
-def get_def_data(away_team_id, home_team_id):
+def usegamedef(schedule_list, game, team_id,home,gameNo):
+    usegame = True
+    gameNumber = game[4:]
+    
+    if gameNo <= int(gameNumber):
+        return False
+    else:
+        if schedule_list[int(gameNumber)]["home"]["id"] == team_id:
+            if home:
+                usegame = True
+            else:
+                usegame = False
+        else:
+            if home:
+                usegame = False
+            else:
+                usegame = True
+
+    return usegame
+
+
+def get_def_data(away_team_id, home_team_id, gameNo):
 
     poss = []
     ba_ratio = []
@@ -90,6 +112,11 @@ def get_def_data(away_team_id, home_team_id):
     defreb_ratio = []
     offreb_ratio = []
     to_ratio = []
+
+    schedule_string = "/Schedule/-L3U_D-g6XHGgDclRC69/games"
+    resultschedule = firebase_db.get(schedule_string,None)
+    schedule_str = json.dumps(resultschedule)
+    schedule_list = json.loads(schedule_str)
     
     
     stat_string = "TeamsDef/"+home_team_id
@@ -97,15 +124,19 @@ def get_def_data(away_team_id, home_team_id):
     data_str = json.dumps(result)
     game_list = json.loads(data_str)
 
+    usegame = True;
+
     for game in game_list:
-        current_game = game_list[game]
-        game_stats = current_game[current_game.keys()[0]]
-        poss.append(game_stats["poss"])
-        ba_ratio.append(game_stats["BA_ratio"])
-        bsba_ratio.append(game_stats["BSBA_ratio"])
-        defreb_ratio.append(game_stats["defreb_ratio"])
-        offreb_ratio.append(game_stats["offreb_ratio"])
-        to_ratio.append(game_stats["TO_ratio"])
+        usegame = usegamedef(schedule_list, game, home_team_id,True, gameNo)
+        if usegame:
+            current_game = game_list[game]
+            game_stats = current_game[current_game.keys()[0]]
+            poss.append(game_stats["poss"])
+            ba_ratio.append(game_stats["BA_ratio"])
+            bsba_ratio.append(game_stats["BSBA_ratio"])
+            defreb_ratio.append(game_stats["defreb_ratio"])
+            offreb_ratio.append(game_stats["offreb_ratio"])
+            to_ratio.append(game_stats["TO_ratio"])
 
     avg_poss = round(float(sum(poss))/len(poss))
     avg_ba_ratio = round(float(sum(ba_ratio))/len(ba_ratio))
@@ -125,17 +156,19 @@ def get_def_data(away_team_id, home_team_id):
     defreb_ratio = []
     offreb_ratio = []
     to_ratio = []
-    
+    usegame = True
 
     for game in game_list:
-        current_game = game_list[game]
-        game_stats = current_game[current_game.keys()[0]]
-        poss.append(game_stats["poss"])
-        ba_ratio.append(game_stats["BA_ratio"])
-        bsba_ratio.append(game_stats["BSBA_ratio"])
-        defreb_ratio.append(game_stats["defreb_ratio"])
-        offreb_ratio.append(game_stats["offreb_ratio"])
-        to_ratio.append(game_stats["TO_ratio"])
+        usegame = usegamedef(schedule_list, game, away_team_id,False, gameNo)
+        if usegame:
+            current_game = game_list[game]
+            game_stats = current_game[current_game.keys()[0]]
+            poss.append(game_stats["poss"])
+            ba_ratio.append(game_stats["BA_ratio"])
+            bsba_ratio.append(game_stats["BSBA_ratio"])
+            defreb_ratio.append(game_stats["defreb_ratio"])
+            offreb_ratio.append(game_stats["offreb_ratio"])
+            to_ratio.append(game_stats["TO_ratio"])
 
     avg_a_poss = round(float(sum(poss))/len(poss))
     avg_a_ba_ratio = round(float(sum(ba_ratio))/len(ba_ratio))
@@ -350,7 +383,7 @@ def run_game(loops,away_team_id,home_team_id,away_team_name,home_team_name,gameN
     [fgatt_dict, fgmade_dict,threeatt_dict,threemade_dict,ftatt_dict,ftmade_dict,nogames_dict]= get_stat_dict(home_team_id,True,gameNo)
 
     #returned team stats
-    [poss,ba_ratio,bsba_ratio,defreb_ratio,offreb_ratio,to_ratio,aposs,aba_ratio,absba_ratio,adefreb_ratio,aoffreb_ratio,ato_ratio]= get_def_data(away_team_id,home_team_id)
+    [poss,ba_ratio,bsba_ratio,defreb_ratio,offreb_ratio,to_ratio,aposs,aba_ratio,absba_ratio,adefreb_ratio,aoffreb_ratio,ato_ratio]= get_def_data(away_team_id,home_team_id,gameNo)
 
 
     print_boxscore = False

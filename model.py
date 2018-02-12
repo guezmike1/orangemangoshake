@@ -5,6 +5,7 @@ import json
 from pprint import pprint
 from firebase import firebase,FirebaseAuthentication
 from nba_functions import *
+from credentials import *
 
 
 #Run sportsradar to gamelist
@@ -35,6 +36,9 @@ def get_trainedNo():
 start = 500
 howmany = 1
 
+
+firebase_db = get_firebasedb()
+
 #Trained until 736
 for i in range(0,howmany):
 #for i in range(0,1):
@@ -47,7 +51,24 @@ for i in range(0,howmany):
     print "------------- "+ away_team_name + " @ " + home_team_name + "-----"
 
 
-    final_score = run_game(1,away_team_id, home_team_id,away_team_name, home_team_name,gameNo)
+    [h_score,a_score] = run_game(1,away_team_id, home_team_id,away_team_name, home_team_name,gameNo)
+
+    post = True
+
+    post_data = {}
+    post_data["homeid"] = home_team_id
+    post_data["awayid"] = away_team_id
+    post_data["homename"] = home_team_name
+    post_data["awayname"] = away_team_name
+    post_data["homescore"] = h_score
+    post_data["awayscore"] = a_score
+
+
+    if post:
+        post_string = "/Output/"+str(gameNo)
+        print post_string
+        print post_data
+        #result = firebase_db.post(post_string,post_data)
 
     
 #post_string = '/Teams/'+home_team_id+'/'+player["id"]+'/Game'+str(gameNo)
