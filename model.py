@@ -22,8 +22,7 @@ from credentials import *
 #stats= get_player_stat_list("points", '583ec5fd-fb46-11e1-82cb-f4ce4684ea4c', "036f914a-aad0-4ff1-9771-54f9e963d1b8")
 #print stats
 
-def get_trainedNo():
-    return 736;
+
 
 #652 Start of 1/17
 #686-694 are the games for 1/22

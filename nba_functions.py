@@ -6,11 +6,11 @@ from pprint import pprint
 from firebase import firebase,FirebaseAuthentication
 from random import randint
 from credentials import *
-#from model import *
 
 firebase_db = get_firebasedb()
 conn= get_conn()
-
+trainedNo = get_trainedNo()
+api_key = get_apikey()
 
 #Only picks games before this one and home if home, away if away
 def usethisgame(schedule_list, game, team_id,home,gameNo):
@@ -219,7 +219,7 @@ def get_stat_dict(team_id,home,gameNo):
     ftmade_dict = {}
     nogames_dict = {}
 
-    conn.request("GET", "/nba/trial/v4/en/teams/"+team_id+"/profile.json?api_key=9ced6hbudhabvug4jdhqsew3")
+    conn.request("GET", "/nba/trial/v4/en/teams/"+team_id+"/profile.json?api_key="+api_key)
     res = conn.getresponse()
     data_roster = json.load(res)
 
