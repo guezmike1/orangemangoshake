@@ -31,9 +31,9 @@ firebase_db = firebase.FirebaseApplication('https://bball2018-9c679.firebaseio.c
 #695- 695+57 games was ran and on sublime
 
 #Trained until 736
-for i in range(0,5):
+for i in range(0,1):
 #for i in range(0,1):
-    [away_team_id, home_team_id,away_team_name, home_team_name] = get_team_ids(760+i)
+    [away_team_id, home_team_id,away_team_name, home_team_name] = get_team_ids(774+i)
 
 #print away_team_id
 #print home_team_id
@@ -43,8 +43,9 @@ for i in range(0,5):
 
     final_score = run_game(25,away_team_id, home_team_id,away_team_name, home_team_name)
 
-
-
+    
+#post_string = '/Teams/'+home_team_id+'/'+player["id"]+'/Game'+str(gameNo)
+#result = firebase_db.post(post_string,player["statistics"])
 
 
 

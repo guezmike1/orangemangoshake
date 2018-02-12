@@ -13,7 +13,7 @@ conn = http.client.HTTPSConnection("api.sportradar.us")
 
 
 #stat is a string of the stat you want
-def get_player_stat_list(team_id, player_id, player_fullname):
+def get_player_stat_list(team_id, player_id, player_fullname,home):
 
     fgatt= []
     fgmade=[]
@@ -21,13 +21,18 @@ def get_player_stat_list(team_id, player_id, player_fullname):
     ftmade=[]
     threeatt=[]
     threemade=[]
-    
+    usegame = True
+
+    schedule_string = "/Schedule/-L3U_D-g6XHGgDclRC69/games"
+    resultschedule = firebase_db.get(schedule_string,None)
+    schedule_str = json.dumps(resultschedule)
+    schedule_list = json.loads(schedule_str)
     
     get_string = "/Teams/"+team_id+"/"+player_id
-    
     result = firebase_db.get(get_string,None)
     data_str = json.dumps(result)
     game_list = json.loads(data_str)
+    
 
     if game_list is None:
         print player_fullname + " not on roster"
@@ -38,16 +43,29 @@ def get_player_stat_list(team_id, player_id, player_fullname):
         
         for game in game_list:
             if game != "fullname":
-                current_game = game_list[game]
-                game_stats = current_game[current_game.keys()[0]]
-                
-                if game_stats["minutes"] != "00:00":
-                    fgatt.append(game_stats["field_goals_att"])
-                    fgmade.append(game_stats["field_goals_made"])
-                    ftatt.append(game_stats["free_throws_att"])
-                    ftmade.append(game_stats["free_throws_made"])
-                    threeatt.append(game_stats["three_points_att"])
-                    threemade.append(game_stats["three_points_made"])
+                gameNumber = game[4:]
+                if schedule_list[int(gameNumber)]["home"]["id"] == team_id:
+                    if home:
+                        usegame = True
+                    else:
+                        usegame = False
+                else:
+                    if home:
+                        usegame = False
+                    else:
+                        usegame = True
+
+                if usegame:
+                    current_game = game_list[game]
+                    game_stats = current_game[current_game.keys()[0]]
+                    
+                    if game_stats["minutes"] != "00:00":
+                        fgatt.append(game_stats["field_goals_att"])
+                        fgmade.append(game_stats["field_goals_made"])
+                        ftatt.append(game_stats["free_throws_att"])
+                        ftmade.append(game_stats["free_throws_made"])
+                        threeatt.append(game_stats["three_points_att"])
+                        threemade.append(game_stats["three_points_made"])
         noGames = len(fgatt)
         #print fgatt
         return [fgatt,fgmade,ftatt,ftmade,threeatt,threemade,noGames]
@@ -147,7 +165,7 @@ def get_team_ids(index):
     return [away_team_id, home_team_id,away_team_name, home_team_name]
 
 
-def get_stat_dict(team_id):
+def get_stat_dict(team_id,home):
 
     fgatt_dict = {}
     fgmade_dict = {}
@@ -185,7 +203,7 @@ def get_stat_dict(team_id):
             
         #print use_player
         if use_player:  
-            [fgatt,fgmade,ftatt,ftmade,threeatt,threemade,noGames] = get_player_stat_list(team_id, player_id, player_fullname)
+            [fgatt,fgmade,ftatt,ftmade,threeatt,threemade,noGames] = get_player_stat_list(team_id, player_id, player_fullname,home)
             #print player_fullname +" "+ str(fgatt)
             if len(fgatt) == 0:
                 fgatt_dict[player_id] = 0
@@ -317,8 +335,8 @@ def find_pg(cur_dict,game_dict, ft):
 
 def run_game(loops,away_team_id,home_team_id,away_team_name,home_team_name):
     
-    [afgatt_dict, afgmade_dict,athreeatt_dict,athreemade_dict,aftatt_dict,aftmade_dict,anogames_dict]= get_stat_dict(away_team_id)
-    [fgatt_dict, fgmade_dict,threeatt_dict,threemade_dict,ftatt_dict,ftmade_dict,nogames_dict]= get_stat_dict(home_team_id)
+    [afgatt_dict, afgmade_dict,athreeatt_dict,athreemade_dict,aftatt_dict,aftmade_dict,anogames_dict]= get_stat_dict(away_team_id,False)
+    [fgatt_dict, fgmade_dict,threeatt_dict,threemade_dict,ftatt_dict,ftmade_dict,nogames_dict]= get_stat_dict(home_team_id,True)
 
     #returned team stats
     [poss,ba_ratio,bsba_ratio,defreb_ratio,offreb_ratio,to_ratio,aposs,aba_ratio,absba_ratio,adefreb_ratio,aoffreb_ratio,ato_ratio]= get_def_data(away_team_id,home_team_id)
@@ -447,7 +465,7 @@ def run_game(loops,away_team_id,home_team_id,away_team_name,home_team_name):
     avg_home_score = sum(home_final_score)/float(len(home_final_score))
     print "Final score is "+ away_team_name +" " + str(avg_away_score) + " "  + home_team_name + " " +str(avg_home_score)
 
-    return [lines,sums,home_final_score,away_final_score]
+    return [home_final_score,away_final_score]
 
 
 
