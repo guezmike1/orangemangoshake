@@ -5,15 +5,36 @@ import json
 from pprint import pprint
 from firebase import firebase,FirebaseAuthentication
 from random import randint
-import credentials
+from credentials import *
+
+firebase_db = get_firebasedb()
+conn= get_conn()
 
 
 
-global firebase_db
+def usethisgame(schedule_list, game, team_id,home,gameNo):
+    usegame = True
+    gameNumber = game[4:]
+    
+    if gameNo <= int(gameNumber):
+        return False
+    else:
+        if schedule_list[int(gameNumber)]["home"]["id"] == team_id:
+            if home:
+                usegame = True
+            else:
+                usegame = False
+        else:
+            if home:
+                usegame = False
+            else:
+                usegame = True
+
+    return usegame
 
 
 #stat is a string of the stat you want
-def get_player_stat_list(team_id, player_id, player_fullname,home):
+def get_player_stat_list(team_id, player_id, player_fullname,home,gameNo):
 
     fgatt= []
     fgmade=[]
@@ -21,7 +42,6 @@ def get_player_stat_list(team_id, player_id, player_fullname,home):
     ftmade=[]
     threeatt=[]
     threemade=[]
-    usegame = True
 
     schedule_string = "/Schedule/-L3U_D-g6XHGgDclRC69/games"
     resultschedule = firebase_db.get(schedule_string,None)
@@ -40,21 +60,12 @@ def get_player_stat_list(team_id, player_id, player_fullname,home):
 
     else:
         name_key = game_list.keys()[0]
-        
+        #print "game number tested is: " + str(gameNo)
         for game in game_list:
             if game != "fullname":
-                gameNumber = game[4:]
-                if schedule_list[int(gameNumber)]["home"]["id"] == team_id:
-                    if home:
-                        usegame = True
-                    else:
-                        usegame = False
-                else:
-                    if home:
-                        usegame = False
-                    else:
-                        usegame = True
-
+                
+                usegame = usethisgame(schedule_list,game, team_id,home,gameNo);
+                #print "currentgame is "+str(game)+" and " +str(usegame)
                 if usegame:
                     current_game = game_list[game]
                     game_stats = current_game[current_game.keys()[0]]
@@ -165,7 +176,7 @@ def get_team_ids(index):
     return [away_team_id, home_team_id,away_team_name, home_team_name]
 
 
-def get_stat_dict(team_id,home):
+def get_stat_dict(team_id,home,gameNo):
 
     fgatt_dict = {}
     fgmade_dict = {}
@@ -203,7 +214,7 @@ def get_stat_dict(team_id,home):
             
         #print use_player
         if use_player:  
-            [fgatt,fgmade,ftatt,ftmade,threeatt,threemade,noGames] = get_player_stat_list(team_id, player_id, player_fullname,home)
+            [fgatt,fgmade,ftatt,ftmade,threeatt,threemade,noGames] = get_player_stat_list(team_id, player_id, player_fullname,home,gameNo)
             #print player_fullname +" "+ str(fgatt)
             if len(fgatt) == 0:
                 fgatt_dict[player_id] = 0
@@ -333,10 +344,10 @@ def find_pg(cur_dict,game_dict, ft):
 
     
 
-def run_game(loops,away_team_id,home_team_id,away_team_name,home_team_name):
+def run_game(loops,away_team_id,home_team_id,away_team_name,home_team_name,gameNo):
     
-    [afgatt_dict, afgmade_dict,athreeatt_dict,athreemade_dict,aftatt_dict,aftmade_dict,anogames_dict]= get_stat_dict(away_team_id,False)
-    [fgatt_dict, fgmade_dict,threeatt_dict,threemade_dict,ftatt_dict,ftmade_dict,nogames_dict]= get_stat_dict(home_team_id,True)
+    [afgatt_dict, afgmade_dict,athreeatt_dict,athreemade_dict,aftatt_dict,aftmade_dict,anogames_dict]= get_stat_dict(away_team_id,False,gameNo)
+    [fgatt_dict, fgmade_dict,threeatt_dict,threemade_dict,ftatt_dict,ftmade_dict,nogames_dict]= get_stat_dict(home_team_id,True,gameNo)
 
     #returned team stats
     [poss,ba_ratio,bsba_ratio,defreb_ratio,offreb_ratio,to_ratio,aposs,aba_ratio,absba_ratio,adefreb_ratio,aoffreb_ratio,ato_ratio]= get_def_data(away_team_id,home_team_id)

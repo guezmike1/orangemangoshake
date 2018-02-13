@@ -5,7 +5,6 @@ import json
 from pprint import pprint
 from firebase import firebase,FirebaseAuthentication
 from nba_functions import *
-import credentials
 
 
 #Run sportsradar to gamelist
@@ -14,7 +13,7 @@ import credentials
 
 #Run model
 
-
+#firebase_db = get_firebasedb();
 
 #firebase_db = firebase.FirebaseApplication('https://bball2018-9c679.firebaseio.com/', authentication=None)
 
@@ -22,6 +21,8 @@ import credentials
 #stats= get_player_stat_list("points", '583ec5fd-fb46-11e1-82cb-f4ce4684ea4c', "036f914a-aad0-4ff1-9771-54f9e963d1b8")
 #print stats
 
+def get_trainedNo():
+    return 736;
 
 #652 Start of 1/17
 #686-694 are the games for 1/22
@@ -31,7 +32,7 @@ import credentials
 #750 Warriors Jazz 1/30
 #695- 695+57 games was ran and on sublime
 
-start = 774
+start = 500
 howmany = 1
 
 #Trained until 736
@@ -46,7 +47,7 @@ for i in range(0,howmany):
     print "------------- "+ away_team_name + " @ " + home_team_name + "-----"
 
 
-    final_score = run_game(1,away_team_id, home_team_id,away_team_name, home_team_name)
+    final_score = run_game(1,away_team_id, home_team_id,away_team_name, home_team_name,gameNo)
 
     
 #post_string = '/Teams/'+home_team_id+'/'+player["id"]+'/Game'+str(gameNo)
