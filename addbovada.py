@@ -11,18 +11,17 @@ trainedNo = get_trainedNo()
 firebase_db = get_firebasedb()
 
 #Fix 730
-start = 449
+start = 796
 howmany = 631
-#Jan 28
 
 get_string = '/Outputv6'
 result = firebase_db.get(get_string,None)
 data_str = json.dumps(result)
 game_list = json.loads(data_str)
 
-#pprint(game_list)
 
-for i in range(start,731):
+#845 done
+for i in range(start,846):
     current_game = game_list[i]
     game_data = current_game[current_game.keys()[0]]
 
