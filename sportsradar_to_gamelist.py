@@ -41,7 +41,7 @@ data_str = json.dumps(result)
 game_list = json.loads(data_str)
 
 #731
-for game in game_list[736:765]:
+for game in game_list[817:846]:
 
     game_id = game["id"]
     get_string = "/nba/trial/v4/en/games/"+game_id+"/summary.json?api_key=9ced6hbudhabvug4jdhqsew3"

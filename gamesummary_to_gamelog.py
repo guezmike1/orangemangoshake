@@ -11,7 +11,7 @@ firebase_db = firebase.FirebaseApplication('https://bball2018-9c679.firebaseio.c
 #result = firebase_db.delete("/Teams",None)
 
 #Ran up to 764
-for gameNo in range(738,765):
+for gameNo in range(765,846):
     get_string = '/Games/Game'+str(gameNo)
     print gameNo
 

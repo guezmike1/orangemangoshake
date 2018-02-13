@@ -56,6 +56,19 @@ def checkLine(avg_line,real_line,bov_line):
     return 0
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 def test_games(start,finish):
     correct_line_ratio = []
     correct_total_ratio = []

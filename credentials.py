@@ -4,7 +4,7 @@ import json
 from pprint import pprint
 from firebase import firebase,FirebaseAuthentication
 
-trainedNo = 736
+trainedNo = 845
 firebase_site = 'https://bball2018-9c679.firebaseio.com/'
 firebase_db = firebase.FirebaseApplication(firebase_site, authentication=None)
 conn = http.client.HTTPSConnection("api.sportradar.us")

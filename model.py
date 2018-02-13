@@ -32,26 +32,43 @@ from credentials import *
 #750 Warriors Jazz 1/30
 #695- 695+57 games was ran and on sublime
 
-start = 100
-howmany = 635
+#sportsradar to gamelog is at 845
+#gamesummary to gamelog is at 845
+#defense is at 845
+
+
+##Steps
+#Run gamesummary
+#Run defense
+#run model
+#add bovada
+
+start = 732
+end = 845
+
+howmany = end - start
 
 trainedNo = get_trainedNo()
 firebase_db = get_firebasedb()
 run = True
 
+
+#SKIP 807 Pacers Pelicans canceled
 #Trained until 736
-for i in range(0,howmany):
-#for i in range(0,1):
+for i in range(0,howmany+1):
+#for i in range(807,808):
     gameNo = start + i
+    print "~~~~~~~~~~~~~~~~~"+str(gameNo)+"~~~~~~~~~~~~~~~~"
+
     [away_team_id, home_team_id,away_team_name, home_team_name] = get_team_ids(gameNo)
+    #print away_team_id
 
 #print away_team_id
 #print home_team_id
-    print "~~~~~~~~~~~~~~~~~"+str(gameNo)+"~~~~~~~~~~~~~~~~"
     print "------------- "+ away_team_name + " @ " + home_team_name + "-----"
 
     if run:
-        [h_score,a_score] = run_game(1,away_team_id, home_team_id,away_team_name, home_team_name,gameNo)
+        [h_score,a_score] = run_game(25,away_team_id, home_team_id,away_team_name, home_team_name,gameNo)
 
         post = True
 
@@ -73,8 +90,8 @@ for i in range(0,howmany):
 
         if post:
             post_string = "/Outputv6/"+str(gameNo)
-            print post_string
-            print post_data
+            #print post_string
+            #print post_data
             result = firebase_db.post(post_string,post_data)
 
 

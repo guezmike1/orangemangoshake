@@ -13,7 +13,7 @@ away_team_data = {}
 home_team_data = {}
 
 #765
-for gameNo in range(736,765):
+for gameNo in range(808,846):
     get_string = '/Games/Game'+str(gameNo)
     print gameNo
 

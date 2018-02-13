@@ -16,6 +16,10 @@ api_key = get_apikey()
 def usethisgame(schedule_list, game, team_id,home,gameNo):
     usegame = True
     gameNumber = game[4:]
+
+    if int(gameNumber) == 807:
+        #print "ignoring 807"
+        return False
     
     if gameNo <= int(gameNumber):
         return False
@@ -86,6 +90,10 @@ def get_player_stat_list(team_id, player_id, player_fullname,home,gameNo):
 def usegamedef(schedule_list, game, team_id,home,gameNo):
     usegame = True
     gameNumber = game[4:]
+    
+    if int(gameNumber) == 807:
+        #print "ignoring 807 def"
+        return False
     
     if gameNo <= int(gameNumber):
         return False
@@ -529,7 +537,7 @@ def run_game(loops,away_team_id,home_team_id,away_team_name,home_team_name,gameN
             print_boxscore_function(box_score_away, box_score_home,away_team_name,home_team_name,away_team_id,home_team_id)
 
 
-    print "~~~~~Averages of " + str(loops) + " loops ~~~~"
+    #print "~~~~~Averages of " + str(loops) + " loops ~~~~"
     avg_away_score = sum(away_final_score)/float(len(away_final_score))
     avg_home_score = sum(home_final_score)/float(len(home_final_score))
     print "Final score is "+ away_team_name +" " + str(avg_away_score) + " "  + home_team_name + " " +str(avg_home_score)
